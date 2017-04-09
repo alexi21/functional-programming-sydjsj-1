@@ -1,6 +1,8 @@
 # Functional Programming
 ## 12 April 2017
-### SydJS(J)
+## SydJS(J)
+
+---
 
 ### Thinking Functionally
 
