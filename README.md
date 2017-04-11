@@ -1,6 +1,6 @@
 # Functional Programming
-## 12 April 2017
-## SydJS(J)
+### 12 April 2017
+### SydJS(J)
 
 ---
 
@@ -46,8 +46,8 @@ Functional programming is about decomposing your programs into tiny re-usable fu
 ##### Reasonable
 
 ---
-
-### Example One
+#### Array
+##### Example One
 
 We want to iterate over a List of values and apply a specific set of instructions to mutate the values in that list.
 
@@ -56,26 +56,40 @@ We want to iterate over a List of values and apply a specific set of instruction
 - Times each value by 10
 - Divide each value by 2
 
-1. First attempt - imperative
+1. First attempt 
+
+####Imperative
+
+This is one way of using the imperative style of programming to solve the problem described above. We explicitly provide a set of specific instructions and mutate the variable `myList`
 
 ```js
+// [Int]
+
 let myList = [1,2,3,4,5];
 
 for (let i = 0; i < 5; i = i + 1)
   myList[i] = ((myList[i] + 1) * 10)/2;
 ```
 
-2. Second Attempt - use map
+2. Second Attempt
+
+####map
+
+Map and Reduce - and the many other related functions such as Filter and Find, provide the necessary abstraction to start using functional programming.
 
 ```js
 let myList = [1,2,3,4,5];
 
 myList.map(function(x) {
- return ((x + 1) * 10)/2
+ return ((x + 1) * 10)/2;
 });
 ```
 
-3. Third Attempt - use ES6
+3. Third Attempt
+
+####ES6
+
+Using ES6 lambda expressions we can greatly simplify the syntax. As we will see they also provide a great deal of flexibility as we begin to code in a more functional manner.
 
 ```js
 let myList = [1,2,3,4,5];
@@ -85,7 +99,9 @@ myList.map(x =>
 );
 ```
 
-4. Fourth Attempt - use a function and stop mutating myList
+4. Fourth Attempt
+
+####Immutable
 
 ```js
 const myList = [1,2,3,4,5];
@@ -98,7 +114,9 @@ const mapAddOneTimesTenDivideByTwo = list =>
 mapAddOneTimesTenDivideByTwo(myList)
 ```
 
-5. Fifth attempt - lets get functional
+5. Fifth attempt
+
+####Functional
 
 ```js
 const addOne = x =>
@@ -124,6 +142,8 @@ const myList = [1,2,3,4,5];
 mapAddOneTimesTenDivideByTwo(myList) 
 ```
 Okay, so now we have four functions. The first three are simple and modular functions that do a basic arithmetic evaluation. The last is a little ugly, but nonetheless does the job. It maps over the list and composes each operation in turn to the inputted value and returns a new array.
+
+What I hope is that by illustrating the transformation
 
 But we are missing a key ingredient here: composition
 
@@ -358,15 +378,202 @@ In functional programming we want to avoid both mutating state and side effects 
 
 Pure functions are easily tested and extensible. By using composition we also increase their modularity and make them easier to reason about. We have decomposed the complexity by creating re-usable modular functions that are composed together to do an incrementally more complex task.
 
+---
 
+##Functor
 
+There is something else that is rather special about this example. The array we have been using in Javascript is also known as a Functor in category theory. A functor is type class that can be mapped. In other words it is a container or wrapper which can be temporarily unpacked and have a function (or morphism) applied to each individual item in the container.
 
+One of the reasons that arrays, or more generally lists, are so useful in programming is for this reason.
 
+Now rather than embark on a lesson in category theory which is way beyond the scope of this discussion, lets have a quick look at an incredibly useful Functor that we use at EventHub.
 
+---
 
+### Maybe
 
+A maybe is a functor, and a very special functor that has a number of useful properties.
 
+Essentially, a maybe is like a container into which you place something and then apply your functions to it while inside the container, before reaching in and pulling whatever the transformed thing is out. Well almost, because you maybe can take it out of the maybe, or maybe you can't.
 
+So a Maybe has the following type signature
 
+(Just A | Nothing)
+
+Like the array, which wraps a collection. In general terms a maybe is the same thing, you wrap the value in a maybe, and then using a special type of map operation called an fmap you reach in and apply the provided function to the value inside the Maybe wrapper.
+
+You then resolve the Maybe by getting the value out, if it is still there, or you get Nothing.
+
+Lets look at a concrete example that will explain it far better than I can here.
+
+---
+
+#### Maybe 
+#####Example 2.
+
+Say you want to fetch something from your database and then convert it to a JSON, grab a value from it, and then serve it up to the frontend for further manipulation. Using a maybe makes this potentially hazardous journey into the unknown far safer.
+
+So we are going to take the following steps
+
+1. Fetch our user from the database using a given `uuid`
+2. Convert the model to a JSON
+3. Grab the `username` prop from the newly created object
+
+---
+
+#### Maybe to the rescue
+
+The Maybe data type provides an elegant and simple solution to this problem. We simply wrap our database inside a Maybe and the get the returned value or `null`
+
+We are going to use the Maybe monad (don't worry it is still a Functor and I am not going to mention monads again tonight) provided by folktale on github.
+
+https://github.com/folktale/data.maybe
+
+So lets say you have your database model `User` and your `UUID` and want to find your user.
+
+In SQL you might do something like this:
+```sql
+SELECT * FROM users WHERE id = '289df31a-96c1-4418-b315-7d2e5c2dfc6a'
+```
+
+In Javascript you are probably using an ORM or Query Builder (such as BookshelfJS and KnexJS)
+
+So you could wrap your query in a function (reusable and modular) and it might look something like this:
+
+```js
+import User from 'my-user-model'
+
+const userFetchById = id =>
+  User.where({id}).fetch()
+  
+userFetchById('289df31a-96c1-4418-b315-7d2e5c2dfc6a')
+```
+
+Now if all goes well the fetched user is converted to a JSON and we grab the username.
+
+But if something goes wrong (such as the user not being there) - BOOM!
+
+So lets wrap our function in a `Maybe`
+
+---
+
+Complete example
+
+```js
+
+// Using some syntactic sugar below, feel free to ignore
+
+const then = f => p => p.then(f)
+
+const getOrElse = maybe => orElseValue => maybe.getOrElse(null)
+
+// ------------------------------------------------------------
+
+const getUserNameFromId = id =>
+    compose( 
+      then(compose(
+          getOrElse('no user found'),
+          map(myMaybe => 
+            toJSON(myMaybe).user_name
+          ),
+          Maybe.fromNullable
+        )),
+      userFetchById
+    )(id)
+```
+
+Lets explain this and then add a little more syntactic sugar
+
+First we fetch the user from the database...
+
+BUT
+
+It might be null in which case if we call `toJSON` we will get an error.
+
+So we wrap it in a maybe which protects the outer code from any inner explosions.
+
+We use a constructor function.
+
+`Maybe.fromNullable(valueWhichMightBeNull)`
+
+Then ( literally because we have a promise here ) we open up the Maybe and act as if it is not null fetched but rather a user model.
+
+Convert the model to a JSON and grab the prop.
+
+Then we get the value from the maybe or we get the string `'no user found'`
+
+Lovely!
+
+---
+
+Now if we use some more Ramda and syntactic sugar we can actually write this function like this.
+
+```js
+import R from 'ramda'
+
+// Using some syntactic sugar below, feel free to ignore
+
+const then = f => p => p.then(f)
+
+const getOrElse = maybe => orElseValue => maybe.getOrElse(null)
+
+const toJSON = R.invoker(0, 'toJSON')
+
+// ------------------------------------------------------------
+
+const getUserNameFromId =
+    R.compose( 
+      then(R.compose(
+          getOrElse('no user found'),
+          R.map(compose(
+            R.prop('user_name'),
+            toJSON
+          )),
+          Maybe.fromNullable
+        )),
+      userFetchById
+    )
+```
+
+`R.prop` simply gets the value at the prop passed in as a string
+
+`R.invoker` calls the provided method, in this case toJSON, on the value which is passed in.
+
+The other three functions enable us to go completely point free, which is functional nirvana :)
+
+As you can see we are using currying and point free liberally already even in this example. But this is not something to be intimidated by, once you begin to THINK functionally the actually data itself becomes less of a concern, rather you begin to think in terms of the data structure or Type signature. And Javascript becomes a powerful tool, capable of running across the full stack.
+
+The point of this example is not to teach you functional programming, or really anything about `Maybe`. It is to demonstrate the power of functional programming. Which gets even more interesting when you consider that we may want to do this operation again and again but with different models and with different data manipulations.
+
+In which case we can break this function up into another utility function.
+
+```js
+
+const getFromFunctionOrElseValue = fn => value =>
+    then(R.compose(
+      getOrElse(value),
+      map(fn),
+      Maybe.fromNullable
+    ))
+
+```
+
+So we just declare our function to manipulate the returned model and pass that in with the value we want if the Maybe takes a null when the user is fetched from the database.
+
+```js
+const getUserName =
+  R.compose(
+    R.prop('user_name'),
+    toJSON
+  )
+  
+const getUserNameFromId =
+    R.compose( 
+      getFromFunctionOrElseValue(getUserName)('no user found'),
+      userFetchById
+    )
+```
+
+The motto is compose and DRY the code as much as possible, and never mutate.
 
 
