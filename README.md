@@ -74,14 +74,14 @@ for (let i = 0; i < 5; i = i + 1)
 
 2. Second Attempt
 
-#### map
+#### map 
 
-Map and Reduce - and the many other related functions such as Filter and Find, provide the necessary abstraction to start using functional programming.
+Map and Reduce - and the many other related functions such as Filter and Find, provide the necessary abstraction to start using functional programming. We also start using immutability here by declaring a new variable
 
 ```js
-let myList = [1,2,3,4,5];
+const myList = [1,2,3,4,5];
 
-myList.map(function(x) {
+const myNewList = myList.map(function(x) {
  return ((x + 1) * 10)/2;
 });
 ```
@@ -93,16 +93,16 @@ myList.map(function(x) {
 Using ES6 lambda expressions we can greatly simplify the syntax. As we will see they also provide a great deal of flexibility as we begin to code in a more functional manner.
 
 ```js
-let myList = [1,2,3,4,5];
+const myList = [1,2,3,4,5];
 
-myList.map(x =>
+const myNewList = myList.map(x =>
  ((x + 1) * 10)/2
 );
 ```
 
 4. Fourth Attempt
 
-#### Immutable
+#### Wrap in a function
 
 ```js
 const myList = [1,2,3,4,5];
