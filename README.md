@@ -59,7 +59,7 @@ We want to iterate over a List of values and apply a specific set of instruction
 
 1. First attempt 
 
-####Imperative
+#### Imperative
 
 This is one way of using the imperative style of programming to solve the problem described above. We explicitly provide a set of specific instructions and mutate the variable `myList`
 
@@ -74,7 +74,7 @@ for (let i = 0; i < 5; i = i + 1)
 
 2. Second Attempt
 
-####map
+#### map
 
 Map and Reduce - and the many other related functions such as Filter and Find, provide the necessary abstraction to start using functional programming.
 
@@ -88,7 +88,7 @@ myList.map(function(x) {
 
 3. Third Attempt
 
-####ES6
+#### ES6
 
 Using ES6 lambda expressions we can greatly simplify the syntax. As we will see they also provide a great deal of flexibility as we begin to code in a more functional manner.
 
@@ -102,7 +102,7 @@ myList.map(x =>
 
 4. Fourth Attempt
 
-####Immutable
+#### Immutable
 
 ```js
 const myList = [1,2,3,4,5];
@@ -117,7 +117,7 @@ mapAddOneTimesTenDivideByTwo(myList)
 
 5. Fifth attempt
 
-####Functional
+#### Functional
 
 ```js
 const addOne = x =>
@@ -207,9 +207,9 @@ But where do I find such a useful function ?
 
 ---
 
-###Ramda.JS
+### Ramda.JS
 
-####http://ramdajs.com/docs/#compose
+#### http://ramdajs.com/docs/#compose
 
 So now we have a concrete utility function that we can use to compose our functions.
 
@@ -352,7 +352,7 @@ Or any number of different variations on this theme.
 
 ---
 
-###Pure Functions
+### Pure Functions
 
 Lets return to this function
 
@@ -381,7 +381,7 @@ Pure functions are easily tested and extensible. By using composition we also in
 
 ---
 
-##Functor
+## Functor
 
 There is something else that is rather special about this example. The array we have been using in Javascript is also known as a Functor in category theory. A functor is type class that can be mapped. In other words it is a container or wrapper which can be temporarily unpacked and have a function (or morphism) applied to each individual item in the container.
 
@@ -409,9 +409,9 @@ Lets look at a concrete example that will explain it far better than I can here.
 
 ---
 
-#### Maybe
+### Maybe
 
-#####Example 2.
+#### Example 2.
 
 Say you want to fetch something from your database and then convert it to a JSON, grab a value from it, and then serve it up to the frontend for further manipulation. Using a maybe makes this potentially hazardous journey into the unknown far safer.
 
