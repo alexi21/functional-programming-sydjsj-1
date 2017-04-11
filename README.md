@@ -47,6 +47,7 @@ Functional programming is about decomposing your programs into tiny re-usable fu
 
 ---
 #### Array
+
 ##### Example One
 
 We want to iterate over a List of values and apply a specific set of instructions to mutate the values in that list.
@@ -408,7 +409,8 @@ Lets look at a concrete example that will explain it far better than I can here.
 
 ---
 
-#### Maybe 
+#### Maybe
+
 #####Example 2.
 
 Say you want to fetch something from your database and then convert it to a JSON, grab a value from it, and then serve it up to the frontend for further manipulation. Using a maybe makes this potentially hazardous journey into the unknown far safer.
