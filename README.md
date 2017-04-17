@@ -369,11 +369,17 @@ const mapAddOneTimesTenDivideByTwo =
   )
 ```
 
-We call this a "Pure Function" because:
-1. It is only dependent upon the input provided, and is completely self contained.
-2. It does not change anything outside of its internal scope.
+#### What are Pure Functions?
 
-It follows the principles of both "immutability" and "no side effects".
+- Only dependent upon the variables provided.
+- Do not change anything.
+- Follows the principles of both "immutability" and "no side effects".
+- Immutability: arguments passed in are not mutated, and declared variables are not mutated.
+- No side effects: function produces no effects other than the returned value.
+- https://wiki.haskell.org/Referential_transparency “an expression always evaluates to the same result in any context.”
+
+In functional programming we want to avoid both mutating state and side effects by using pure functions.
+
 
 In functional programming we want to avoid both mutating state and side effects by using pure functions.
 
